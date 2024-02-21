@@ -1,23 +1,65 @@
 //Imports firebase
 import {
+    eliminarUsuario,
     guardarUsuario,
     obtenerTodosUsuarios,
+    obtenerUsuarioPorId,
 } from "./firebase.js";
 
 
 //Elementos del Html
 const registerForm = document.getElementById("register-form");
 const tabla = document.getElementById("filas");
-const btnBorrar = document.getElementById("btnBorrar");
-const btnEditar = document.getElementById("btnEditar");
+const btnsBorrar = Array.from(document.querySelectorAll("#btnBorrar"));//Ponerlo con clases
+const btnsEditar = document.querySelectorAll("#btnEditar");
 
-//Variables
+//Variables globales.
+const NUMS_PARA_ID = 100;
+
+
+//Inicio 
+window.addEventListener("DOMContentLoaded", async (e) => {
+
+const estudiantes = await obtenerTodosUsuarios();
+mostrarEstudiantes();
+console.log(btnsBorrar)
+
+async function mostrarEstudiantes() {
+    const estudiantes = await obtenerTodosUsuarios();
+    let htmlFilas = '';
+    //Salen desordenados por que se inyectan en DB de manera "aleatoria"
+    estudiantes.forEach(estudiante => {
+        htmlFilas += generarFilaTabla(estudiante);
+    });
+    tabla.innerHTML = htmlFilas;
+}
+
+//Funcion para generar un id unico
+async function generarNuevoId() {
+    const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
+    let id = "";
+    try {
+        if (estudiantes.length > 0) {
+            do {
+                id += letras[Math.floor(Math.random() * letras.length)] +
+                    Math.floor(Math.random() * NUMS_PARA_ID);
+            } while (await obtenerUsuarioPorId(id) != null);
+        } else {
+            id += id += letras[Math.floor(Math.random() * letras.length)] +
+                Math.floor(Math.random() * NUM_GENERAR_ID);
+        }
+        console.log(id + " " + typeof (id));
+        return id;
+    } catch (err) {
+        console.log(err)
+    }
+}
 
 
 //Crear una fila de usuario
 function generarFilaTabla(datosUsuario) {
-    var fila = `<tr>
-                    <td>${datosUsuario.id}<td>
+    return `<tr>
+                    <td>${datosUsuario.id}</td>
                     <td>${datosUsuario.nombre}</td>
                     <td>${datosUsuario.ape1}</td>
                     <td>${datosUsuario.ape2}</td>
@@ -32,15 +74,28 @@ function generarFilaTabla(datosUsuario) {
                         </button>
                     </td>
                 </tr>`;
-    return fila;
 }
 
 
+btnsBorrar.forEach((btn) =>{   
+    btn.addEventListener("click", (ev) =>{
+        try{
+             eliminarUsuario(btn.value);
+        }catch(err){
+            console.log(err)
+        }
+        console.log("Click al boton con id: "+ ev.target.value)
+        mostrarEstudiantes();
+    });
+});
 
-registerForm.addEventListener("click", (ev) => {
-    console.log("Hola")
+});
+
+//Registro de un nuevo estudiante
+registerForm.addEventListener("submit", async (ev) => {
     ev.preventDefault();
 
+    let id = await generarNuevoId();
     let nombre = registerForm["nombre"].value;
     let ape1 = registerForm["apellido1"].value;
     let ape2 = registerForm["apellido2"].value;
@@ -59,20 +114,8 @@ registerForm.addEventListener("click", (ev) => {
     };
 
     guardarUsuario(datosUsuario);
-    tabla.innerHTML = generarFilaTabla(datosUsuario);
+    mostrarEstudiantes();
 });
-
-
-function buscarUsuarioPorId(id) {
-    estudiantes = obtenerTodosUsuarios();
-    // Iterar sobre el array de objetos datosUsuario
-    for (let i = 0; i < estudiantes.length; i++) {
-        if (listaDatosUsuarios[i].id === id) {
-            return listaDatosUsuarios[i];
-        }
-    }
-    return null;
-}
 
 /* // variables globales
 const taskForm = document.getElementById("task-form");
