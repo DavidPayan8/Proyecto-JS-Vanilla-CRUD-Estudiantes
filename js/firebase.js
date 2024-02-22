@@ -6,7 +6,7 @@ import {
   onSnapshot,
   where,
   query,
-  addDoc,
+  setDoc,
   deleteDoc,
   doc,
   getDocs,
@@ -31,8 +31,9 @@ export const db = getFirestore();
 //Guardar usuarios
 export const guardarUsuario = async (datosUsuario) => {
   try {
-    await addDoc(collection(db, "estudiantes"), datosUsuario);
-    console.log("Estudiante guardado");
+    const usuarioRef = doc(collection(db, "estudiantes"), datosUsuario.id);
+    await setDoc(usuarioRef, datosUsuario);
+    console.log("Estudiante guardado con id: " + usuarioRef);
   } catch (error) {
     console.error("No se pudo guardar por:", error);
   }
@@ -75,7 +76,7 @@ export const actualizarUsuario = async (id, datosActualizados) => {
 
 export const eliminarUsuario = async (id) => {
   try {
-    await deleteDoc(query(doc(db, "estudiantes"), where("id", "==", id)));
+    await deleteDoc(doc(collection(db, "estudiantes"),id));
     console.log("Estudiante eliminado");
   } catch (error) {
     console.error("Error al eliminar estudiante:", error);

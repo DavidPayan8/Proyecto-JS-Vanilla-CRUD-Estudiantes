@@ -10,7 +10,7 @@ import {
 //Elementos del Html
 const registerForm = document.getElementById("register-form");
 const tabla = document.getElementById("filas");
-const btnsBorrar = Array.from(document.querySelectorAll("#btnBorrar"));//Ponerlo con clases
+
 const btnsEditar = document.querySelectorAll("#btnEditar");
 
 //Variables globales.
@@ -20,45 +20,38 @@ const NUMS_PARA_ID = 100;
 //Inicio 
 window.addEventListener("DOMContentLoaded", async (e) => {
 
-const estudiantes = await obtenerTodosUsuarios();
-mostrarEstudiantes();
-console.log(btnsBorrar)
-
-async function mostrarEstudiantes() {
     const estudiantes = await obtenerTodosUsuarios();
-    let htmlFilas = '';
-    //Salen desordenados por que se inyectan en DB de manera "aleatoria"
-    estudiantes.forEach(estudiante => {
-        htmlFilas += generarFilaTabla(estudiante);
-    });
-    tabla.innerHTML = htmlFilas;
-}
+    mostrarEstudiantes();
 
-//Funcion para generar un id unico
-async function generarNuevoId() {
-    const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
-    let id = "";
-    try {
-        if (estudiantes.length > 0) {
-            do {
-                id += letras[Math.floor(Math.random() * letras.length)] +
-                    Math.floor(Math.random() * NUMS_PARA_ID);
-            } while (await obtenerUsuarioPorId(id) != null);
-        } else {
-            id += id += letras[Math.floor(Math.random() * letras.length)] +
-                Math.floor(Math.random() * NUM_GENERAR_ID);
-        }
-        console.log(id + " " + typeof (id));
-        return id;
-    } catch (err) {
-        console.log(err)
+    async function mostrarEstudiantes() {
+        const estudiantes = await obtenerTodosUsuarios();
+        let htmlFilas = '';
+        //Salen desordenados por que se inyectan en DB de manera "aleatoria"
+        estudiantes.forEach(estudiante => {
+            htmlFilas += generarFilaTabla(estudiante);
+        });
+        tabla.innerHTML = htmlFilas;
+
+        //Este evento si estuviera fuera de aqui no podria acceder a los botones que se generan de forma dinamica.
+        const btnsBorrar = document.querySelectorAll(".btnBorrar");
+        console.log(btnsBorrar)
+        btnsBorrar.forEach((btn) => {
+            btn.addEventListener("click", (ev) => {
+                try {
+                    eliminarUsuario(btn.value);
+                } catch (err) {
+                    console.log(err)
+                }
+                console.log("Click al boton con id: " + btn.value)
+                mostrarEstudiantes();
+            });
+        });
     }
-}
 
 
-//Crear una fila de usuario
-function generarFilaTabla(datosUsuario) {
-    return `<tr>
+    //Crear una fila de usuario
+    function generarFilaTabla(datosUsuario) {
+        return `<tr>
                     <td>${datosUsuario.id}</td>
                     <td>${datosUsuario.nombre}</td>
                     <td>${datosUsuario.ape1}</td>
@@ -66,55 +59,66 @@ function generarFilaTabla(datosUsuario) {
                     <td>${datosUsuario.telef}</td>
                     <td>${datosUsuario.email}</td>
                     <td>
-                        <button type="submit" id="btnEditar" class="btn btn-warning" value="${datosUsuario.id}">
+                        <button type="submit" id="btnEditar" class="btn btn-warning btnEditar" value="${datosUsuario.id}">
                             <i class="fa fa-pencil" aria-hidden="true"></i>
                         </button>
-                        <button type="submit" id="btnBorrar" class="btn btn-danger" value="${datosUsuario.id}">
+                        <button type="submit" id="btnBorrar" class="btn btn-danger btnBorrar" value="${datosUsuario.id}">
                             <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
                     </td>
                 </tr>`;
-}
+    }
 
 
-btnsBorrar.forEach((btn) =>{   
-    btn.addEventListener("click", (ev) =>{
-        try{
-             eliminarUsuario(btn.value);
-        }catch(err){
+
+
+    //Funcion para generar un id unico
+    async function generarNuevoId() {
+        const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
+        let id = "";
+        try {
+            if (estudiantes.length > 0) {
+                do {
+                    id += letras[Math.floor(Math.random() * letras.length)] +
+                        Math.floor(Math.random() * NUMS_PARA_ID);
+                } while (await obtenerUsuarioPorId(id) != null);
+            } else {
+                id += id += letras[Math.floor(Math.random() * letras.length)] +
+                    Math.floor(Math.random() * NUM_GENERAR_ID);
+            }
+            console.log(id + " " + typeof (id));
+            return id;
+        } catch (err) {
             console.log(err)
         }
-        console.log("Click al boton con id: "+ ev.target.value)
+    }
+
+    //Registro de un nuevo estudiante
+    registerForm.addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+
+        let id = await generarNuevoId();
+        let nombre = registerForm["nombre"].value;
+        let ape1 = registerForm["apellido1"].value;
+        let ape2 = registerForm["apellido2"].value;
+        let telef = registerForm["telefono"].value;
+        let email = registerForm["email"].value;
+        let desc = registerForm["descripcion"].value;
+
+        const datosUsuario = {
+            id: id,
+            nombre: nombre,
+            ape1: ape1,
+            ape2: ape2,
+            telef: telef,
+            email: email,
+            desc: desc,
+        };
+
+        guardarUsuario(datosUsuario);
         mostrarEstudiantes();
     });
-});
 
-});
-
-//Registro de un nuevo estudiante
-registerForm.addEventListener("submit", async (ev) => {
-    ev.preventDefault();
-
-    let id = await generarNuevoId();
-    let nombre = registerForm["nombre"].value;
-    let ape1 = registerForm["apellido1"].value;
-    let ape2 = registerForm["apellido2"].value;
-    let telef = registerForm["telefono"].value;
-    let email = registerForm["email"].value;
-    let desc = registerForm["descripcion"].value;
-
-    const datosUsuario = {
-        id: id,
-        nombre: nombre,
-        ape1: ape1,
-        ape2: ape2,
-        telef: telef,
-        email: email,
-        desc: desc,
-    };
-
-    guardarUsuario(datosUsuario);
-    mostrarEstudiantes();
 });
 
 /* // variables globales
