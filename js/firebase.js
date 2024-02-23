@@ -3,14 +3,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import {
   getFirestore,
   collection,
-  onSnapshot,
   where,
   query,
   setDoc,
   deleteDoc,
   doc,
   getDocs,
-  updateDoc,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -64,10 +62,11 @@ export const obtenerUsuarioPorId = async (id) => {
   }
 };
 
-export const actualizarUsuario = async (id, datosActualizados) => {
+export const actualizarUsuario = async (datosActualizados) => {
   try {
-    await updateDoc(query(doc(db, "estudiantes"), where("id", "==", id)), datosActualizados);
-    console.log("Estudiante actualizado");
+    const usuarioRef = doc(collection(db, "estudiantes"), datosActualizados.id);
+    await setDoc(usuarioRef, datosActualizados);
+    console.log("Estudiante guardado")
   } catch (error) {
     console.error("Error al actualizar estudiante:", error);
   }

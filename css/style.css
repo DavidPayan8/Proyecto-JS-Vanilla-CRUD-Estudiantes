@@ -39,3 +39,8 @@ body {
     margin-left: 10px;
 }
 
+
+.card{
+    min-width: 50%;
+    min-height: 30%;
+}

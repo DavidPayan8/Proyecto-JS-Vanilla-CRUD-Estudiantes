@@ -21,7 +21,22 @@
         </nav>
     </header>
 
-    <main class="main-content">
+    <main class="main-content position-relative">
+
+        <div class="card mt-5 position-absolute top-0 start-50 translate-middle-x" id="view-content" style="display: none;">
+            <h2 class="p-2">Estudiante: </h2>
+            <div class="card-header">
+                <h4 id="fullName"></h4>
+            </div>
+            <div class="card-body">
+                <p class="card-text" id="tlfCard"></p>
+                <p class="card-text" id="emailCard"><strong>Email:</strong></p>
+                <p class="card-text" id="desCard"><strong>Detalles:</strong></p>
+                <button type="button" class="btn btn-danger pt-2" id="closeView">Cerrar</button>
+            </div>
+        </div>
+
+
         <div class="crud-container">
             <div class="crud-header">
                 <h1>Registro de estudiantes</h1>
@@ -36,7 +51,6 @@
                         <th>Nombre</th>
                         <th>Apellido1</th>
                         <th>Apellido2</th>
-                        <th>Teléfono</th>
                         <th>Correo-e</th>
                         <th>Opciones</th>
                     </tr>
@@ -45,6 +59,7 @@
                 </tbody>
             </table>
         </div>
+
     </main>
 
     <!-- Modal -->
@@ -60,12 +75,12 @@
                         <div class="mb-3">
                             <label for="formControlNombre" class="form-label">Nombre</label>
                             <input type="text" name="nombre" class="form-control" id="formControlNombre"
-                                placeholder="Introduce el nombre">
+                                placeholder="Introduce el nombre" required>
                         </div>
                         <div class="mb-3">
                             <label for="formControlApellido1" class="form-label">Apellido</label>
                             <input type="text" name="apellido1" class="form-control" id="formControlApellido1"
-                                placeholder="Introduce el primer apellido">
+                                placeholder="Introduce el primer apellido" required>
                         </div>
                         <div class="mb-3">
                             <label for="formControlApellido2" class="form-label">Apellido 2</label>
@@ -75,24 +90,25 @@
                         <label for="formControlTelefono" class="form-label">Teléfono</label>
                         <div class="input-group smb-3">
                             <span class="input-group-text" id="basic-addon1"><i class="fa fa-phone"></i></span>
-                            <input type="text" name="telefono" class="form-control" id="formControlTelefono"
-                                placeholder="Introduce el teléfono" aria-describedby="basic-addon1">
+                            <input type="tel" pattern="[6-9]{1}[0-9]{8}" name="telefono" class="form-control"
+                                id="formControlTelefono" placeholder="Introduce el teléfono"
+                                aria-describedby="basic-addon1">
                         </div>
                         <label for="formControlEmail" class="form-label">Correo-e</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1"><i class="fa fa-envelope"></i></span>
-                            <input type="text" name="email" class="form-control" id="formControlEmail"
-                                placeholder="Introduce el correo-e">
+                            <input type="email" name="email" class="form-control" id="formControlEmail"
+                                placeholder="Introduce el correo-e" required>
                         </div>
                         <label for="formControlDescripcion" class="form-label">Descripción</label>
                         <div class="input-group">
-                            <textarea name="descripcion" class="form-control" aria-label="Descripción"
-                                rows="4" id="formControlDescripcion"></textarea>
+                            <textarea name="descripcion" class="form-control" aria-label="Descripción" rows="4"
+                                id="formControlDescripcion"></textarea>
                         </div>
 
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary" id="btn-Register"><i
-                                    class="fas fa-save"></i><span>Registrar</span></button>
+                            <button type="submit" class="btn btn-primary" id="btn-Register"><i class="fas fa-save"
+                                    data-bs-dismiss="modal" aria-label="Close"></i><span>Registrar</span></button>
                         </div>
 
                     </form>
@@ -102,6 +118,60 @@
         </div>
     </div>
 
+    <!-- Modal para editar datos -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Editar estudiante</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm-form">
+                        <div class="mb-3">
+                            <label for="formControlNombre" class="form-label">Nombre</label>
+                            <input type="text" name="nombre" class="form-control" id="nombreEdit"
+                                placeholder="Introduce el nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="formControlApellido1" class="form-label">Apellido</label>
+                            <input type="text" name="apellido1" class="form-control" id="ape1Edit"
+                                placeholder="Introduce el primer apellido" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="formControlApellido2" class="form-label">Apellido 2</label>
+                            <input type="text" name="apellido2" class="form-control" id="ape2Edit"
+                                placeholder="Introduce el segundo apellido" required>
+                        </div>
+                        <label for="formControlTelefono" class="form-label">Teléfono</label>
+                        <div class="input-group smb-3">
+                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-phone"></i></span>
+                            <input type="tel" pattern="[6-9]{1}[0-9]{8}" name="telefono" class="form-control"
+                                id="tlfEdit" placeholder="Introduce el teléfono" aria-describedby="basic-addon1">
+                        </div>
+                        <label for="formControlEmail" class="form-label">Correo-e</label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-envelope"></i></span>
+                            <input type="email" name="email" class="form-control" id="emailEdit"
+                                placeholder="Introduce el correo-e" required>
+                        </div>
+                        <label for="formControlDescripcion" class="form-label">Descripción</label>
+                        <div class="input-group">
+                            <textarea name="descripcion" class="form-control" aria-label="Descripción" rows="4"
+                                id="formControlDescripcion"></textarea>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" id="btn-edit"><i
+                                    class="fas fa-save"></i><span>Guardar Cambios</span></button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="js/app.js"></script>
 </body>

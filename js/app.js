@@ -1,5 +1,6 @@
 //Imports firebase
 import {
+    actualizarUsuario,
     eliminarUsuario,
     guardarUsuario,
     obtenerTodosUsuarios,
@@ -9,89 +10,24 @@ import {
 
 //Elementos del Html
 const registerForm = document.getElementById("register-form");
+const editForm = document.getElementById("editForm-form");
+const viewContent = document.getElementById("view-content");
+const closeView = document.getElementById("closeView");
+const fullNameCard = document.getElementById("fullName");
+const tlfCard = document.getElementById("tlfCard");
+const emailCard = document.getElementById("emailCard");
+const desCard = document.getElementById("desCard");
 const tabla = document.getElementById("filas");
-
-const btnsEditar = document.querySelectorAll("#btnEditar");
 
 //Variables globales.
 const NUMS_PARA_ID = 100;
 
 
 //Inicio 
-window.addEventListener("DOMContentLoaded", async (e) => {
+window.addEventListener("DOMContentLoaded", async (ev) => {
 
     const estudiantes = await obtenerTodosUsuarios();
     mostrarEstudiantes();
-
-    async function mostrarEstudiantes() {
-        const estudiantes = await obtenerTodosUsuarios();
-        let htmlFilas = '';
-        //Salen desordenados por que se inyectan en DB de manera "aleatoria"
-        estudiantes.forEach(estudiante => {
-            htmlFilas += generarFilaTabla(estudiante);
-        });
-        tabla.innerHTML = htmlFilas;
-
-        //Este evento si estuviera fuera de aqui no podria acceder a los botones que se generan de forma dinamica.
-        const btnsBorrar = document.querySelectorAll(".btnBorrar");
-        console.log(btnsBorrar)
-        btnsBorrar.forEach((btn) => {
-            btn.addEventListener("click", (ev) => {
-                try {
-                    eliminarUsuario(btn.value);
-                } catch (err) {
-                    console.log(err)
-                }
-                console.log("Click al boton con id: " + btn.value)
-                mostrarEstudiantes();
-            });
-        });
-    }
-
-
-    //Crear una fila de usuario
-    function generarFilaTabla(datosUsuario) {
-        return `<tr>
-                    <td>${datosUsuario.id}</td>
-                    <td>${datosUsuario.nombre}</td>
-                    <td>${datosUsuario.ape1}</td>
-                    <td>${datosUsuario.ape2}</td>
-                    <td>${datosUsuario.telef}</td>
-                    <td>${datosUsuario.email}</td>
-                    <td>
-                        <button type="submit" id="btnEditar" class="btn btn-warning btnEditar" value="${datosUsuario.id}">
-                            <i class="fa fa-pencil" aria-hidden="true"></i>
-                        </button>
-                        <button type="submit" id="btnBorrar" class="btn btn-danger btnBorrar" value="${datosUsuario.id}">
-                            <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                    </td>
-                </tr>`;
-    }
-
-
-
-
-    //Funcion para generar un id unico
-    async function generarNuevoId() {
-        const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
-        let id = "";
-        try {
-            if (estudiantes.length > 0) {
-                do {
-                    id += letras[Math.floor(Math.random() * letras.length)] +
-                        Math.floor(Math.random() * NUMS_PARA_ID);
-                } while (await obtenerUsuarioPorId(id) != null);
-            } else {
-                id += id += letras[Math.floor(Math.random() * letras.length)] +
-                    Math.floor(Math.random() * NUM_GENERAR_ID);
-            }
-            console.log(id + " " + typeof (id));
-            return id;
-        } catch (err) {
-            console.log(err)
-        }
-    }
 
     //Registro de un nuevo estudiante
     registerForm.addEventListener("submit", async (ev) => {
@@ -119,91 +55,134 @@ window.addEventListener("DOMContentLoaded", async (e) => {
         mostrarEstudiantes();
     });
 
-});
-
-/* // variables globales
-const taskForm = document.getElementById("task-form");
-const tasksContainer = document.getElementById("tasks-container");
-let editStatus = false;
-let id = ""; */
-
-/* // manejador de evento principal
-window.addEventListener("DOMContentLoaded", async (e) => {
-    await onGetTasks((querySnapshot) => {
-        tasksContainer.innerHTML = "";
-        // bucle que recorre todos los documentos del objeto querySnapshot
-        querySnapshot.forEach((doc) => {
-            // método .data() convierte el objeto de la DB en un objeto JS
-            const task = doc.data();
-
-            // inyectamos el código HTML de forma dinámica
-            tasksContainer.innerHTML += `
-                <div class="card bg-light mb-1 p-1">
-                  <div class="card-header">${task.title}</div>
-                  <div class="card-body">${task.description}</div>
-                  <div class="card-footer">
-                    <button class="btn btn-danger btn-delete" data-id="${doc.id}">Borrar</button>
-                    <button class="btn btn-success btn-edit" data-id="${doc.id}">Editar</button>
-                  </div>
-                </div>`;
+    //Mostrar los estudiantes y añadir los eventos
+    async function mostrarEstudiantes() {
+        const estudiantes = await obtenerTodosUsuarios();
+        let htmlFilas = '';
+        //Salen desordenados por que se inyectan en DB de manera "aleatoria"
+        estudiantes.forEach(estudiante => {
+            htmlFilas += generarFilaTabla(estudiante);
         });
+        tabla.innerHTML = htmlFilas;
 
-        const btnsDelete = tasksContainer.querySelectorAll(".btn-delete");
-        btnsDelete.forEach((btn) => {
-            btn.addEventListener("click", async (e) => {
+        //Este evento si estuviera fuera de aqui no podria acceder a los botones que se generan de forma dinamica.
+        const btnsBorrar = document.querySelectorAll("#btnBorrar");
+        btnsBorrar.forEach((btn) => {
+            btn.addEventListener("click", (ev) => {
                 try {
-                    await deleteTask(e.target.dataset.id);
-                } catch (error) {
-                    console.log(error);
+                    eliminarUsuario(btn.value);
+                } catch (err) {
+                    console.log(err)
                 }
+                mostrarEstudiantes();
             });
         });
 
-        const btnsEdit = tasksContainer.querySelectorAll(".btn-edit");
-        btnsEdit.forEach((btn) => {
-            btn.addEventListener("click", async (e) => {
-                try {
-                    const doc = await getTask(e.target.dataset.id);
-                    const task = doc.data();
-                    taskForm["task-title"].value = task.title;
-                    taskForm["task-description"].value = task.description;
-
-                    editStatus = true;
-                    id = doc.id;
-                    taskForm["btn-task-form"].innerText = "Actualizar";
-                } catch (error) {
-                    console.log(error);
-                }
+        const btnsEditar = document.querySelectorAll("#btnEditar");
+        btnsEditar.forEach((btn) => {
+            btn.addEventListener("click", (ev) => {
+                editarCampos(btn.value)
             });
         });
-    });
-});
 
-// manejador de evento de envío del formulario
-taskForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const title = taskForm["task-title"];
-    const description = taskForm["task-description"];
-
-    try {
-        if (!editStatus) {
-            await saveTask(title.value, description.value);
-        } else {
-            await updateTask(id, {
-                title: title.value,
-                description: description.value,
-            });
-
-            editStatus = false;
-            id = "";
-            taskForm["btn-task-form"].innerText = "Grabar";
-        }
-
-        taskForm.reset();
-        title.focus();
-    } catch (error) {
-        console.log(error);
+        const btnsView = document.querySelectorAll("#btnView");
+        btnsView.forEach((btn) => {
+            btn.addEventListener('click', (ev) => {
+                verEstudiante(btn.value);
+            })
+        });
     }
-}); */
+
+
+    //Crear una fila de usuario
+    function generarFilaTabla(datosUsuario) {
+        return `<tr>
+                    <td>${datosUsuario.id}</td>
+                    <td>${datosUsuario.nombre}</td>
+                    <td>${datosUsuario.ape1}</td>
+                    <td>${datosUsuario.ape2}</td>
+                    <td>${datosUsuario.email}</td>
+                    <td>
+                         <button type="submit" id="btnEditar" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#editModal"
+                            value="${datosUsuario.id}">
+                         <i class="fa fa-pen"></i>
+                        </button>
+                        <button type="submit" id="btnBorrar" class="btn btn-danger" value="${datosUsuario.id}">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                        <button type="submit" id="btnView" class="btn btn-info" value="${datosUsuario.id}">
+                        </i><i class="fa fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>`;
+    }
+
+    //Actualiza los valores
+    async function editarCampos(id) {
+        const estudiante = await obtenerUsuarioPorId(id);
+        editForm["nombreEdit"].value = estudiante.nombre;
+        editForm['ape1Edit'].value = estudiante.ape1;
+        editForm['ape2Edit'].value = estudiante.ape2;
+        editForm['tlfEdit'].value = estudiante.telef;
+        editForm['emailEdit'].value = estudiante.email;
+        editForm['formControlDescripcion'].value = estudiante.desc;
+
+        editForm.addEventListener("submit", (ev) => {
+            ev.preventDefault()
+
+            const datosUsuario = {
+                id: id,
+                nombre: editForm["nombreEdit"].value,
+                ape1: editForm['ape1Edit'].value,
+                ape2: editForm['ape2Edit'].value,
+                telef: editForm['tlfEdit'].value,
+                email: editForm['emailEdit'].value,
+                desc: editForm['formControlDescripcion'].value,
+            };
+            actualizarUsuario(datosUsuario);
+            mostrarEstudiantes();
+        })
+
+
+    }
+
+    //Vista de un estudiante
+    async function verEstudiante(id) {
+        const estudiante = await obtenerUsuarioPorId(id);
+
+        fullNameCard.innerHTML = `${estudiante.nombre} ${estudiante.ape1} ${estudiante.ape2} `;
+        tlfCard.innerHTML = `<strong>Telefono: </strong>${estudiante.telef}`
+        emailCard.innerHTML = `<strong>Email: </strong>${estudiante.email}`
+        desCard.innerHTML = `<strong>Detalles: </strong>${estudiante.desc}`
+        viewContent.style.display = "block";
+    }
+
+    //Evento para cerrar vista de estudiante
+    closeView.addEventListener("click", (ev) => {
+        viewContent.style.display = "none";
+    });
+
+
+    //Funcion para generar un id unico
+    async function generarNuevoId() {
+        const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
+        let id = "";
+        try {
+            if (estudiantes.length > 0) {
+                do {
+                    id += letras[Math.floor(Math.random() * letras.length)] +
+                        Math.floor(Math.random() * NUMS_PARA_ID);
+                } while (await obtenerUsuarioPorId(id) != null);
+            } else {
+                id += id += letras[Math.floor(Math.random() * letras.length)] +
+                    Math.floor(Math.random() * NUMS_PARA_ID);
+            }
+            return id;
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+});
+
 
