@@ -31,7 +31,7 @@ export const guardarUsuario = async (datosUsuario) => {
   try {
     const usuarioRef = doc(collection(db, "estudiantes"), datosUsuario.id);
     await setDoc(usuarioRef, datosUsuario);
-    console.log("Estudiante guardado con id: " + usuarioRef);
+    alert("Estudiante guardado")
   } catch (error) {
     console.error("No se pudo guardar por:", error);
   }
@@ -66,7 +66,8 @@ export const actualizarUsuario = async (datosActualizados) => {
   try {
     const usuarioRef = doc(collection(db, "estudiantes"), datosActualizados.id);
     await setDoc(usuarioRef, datosActualizados);
-    console.log("Estudiante guardado")
+    return obtenerTodosUsuarios();
+    alert("Datos actualizados")
   } catch (error) {
     console.error("Error al actualizar estudiante:", error);
   }
@@ -76,7 +77,6 @@ export const actualizarUsuario = async (datosActualizados) => {
 export const eliminarUsuario = async (id) => {
   try {
     await deleteDoc(doc(collection(db, "estudiantes"),id));
-    console.log("Estudiante eliminado");
   } catch (error) {
     console.error("Error al eliminar estudiante:", error);
   }

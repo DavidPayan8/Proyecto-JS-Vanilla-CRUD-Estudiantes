@@ -9,6 +9,7 @@ import {
 
 
 //Elementos del Html
+const crudContainer = document.getElementById("crud-container");
 const registerForm = document.getElementById("register-form");
 const editForm = document.getElementById("editForm-form");
 const viewContent = document.getElementById("view-content");
@@ -27,7 +28,7 @@ const NUMS_PARA_ID = 100;
 window.addEventListener("DOMContentLoaded", async (ev) => {
 
     const estudiantes = await obtenerTodosUsuarios();
-    mostrarEstudiantes();
+    mostrarEstudiantes(estudiantes);
 
     //Registro de un nuevo estudiante
     registerForm.addEventListener("submit", async (ev) => {
@@ -52,12 +53,12 @@ window.addEventListener("DOMContentLoaded", async (ev) => {
         };
 
         guardarUsuario(datosUsuario);
-        mostrarEstudiantes();
+        estudiantes.push(datosUsuario);
+        mostrarEstudiantes(estudiantes);
     });
 
     //Mostrar los estudiantes y añadir los eventos
-    async function mostrarEstudiantes() {
-        const estudiantes = await obtenerTodosUsuarios();
+    async function mostrarEstudiantes(estudiantes) {
         let htmlFilas = '';
         //Salen desordenados por que se inyectan en DB de manera "aleatoria"
         estudiantes.forEach(estudiante => {
@@ -68,26 +69,30 @@ window.addEventListener("DOMContentLoaded", async (ev) => {
         //Este evento si estuviera fuera de aqui no podria acceder a los botones que se generan de forma dinamica.
         const btnsBorrar = document.querySelectorAll("#btnBorrar");
         btnsBorrar.forEach((btn) => {
-            btn.addEventListener("click", (ev) => {
+            btn.addEventListener("click", async (ev) => {
                 try {
                     eliminarUsuario(btn.value);
                 } catch (err) {
                     console.log(err)
                 }
-                mostrarEstudiantes();
+                estudiantes = await obtenerTodosUsuarios();
+                mostrarEstudiantes(estudiantes);
             });
         });
 
+        //Controla el boton de editar 
         const btnsEditar = document.querySelectorAll("#btnEditar");
         btnsEditar.forEach((btn) => {
-            btn.addEventListener("click", (ev) => {
+            btn.addEventListener("click", async (ev) => {
                 editarCampos(btn.value)
             });
         });
 
+        //Controla el boton de vista
         const btnsView = document.querySelectorAll("#btnView");
         btnsView.forEach((btn) => {
             btn.addEventListener('click', (ev) => {
+                crudContainer.style.display = 'none';
                 verEstudiante(btn.value);
             })
         });
@@ -127,7 +132,7 @@ window.addEventListener("DOMContentLoaded", async (ev) => {
         editForm['emailEdit'].value = estudiante.email;
         editForm['formControlDescripcion'].value = estudiante.desc;
 
-        editForm.addEventListener("submit", (ev) => {
+        editForm.addEventListener("submit", async (ev) => {
             ev.preventDefault()
 
             const datosUsuario = {
@@ -139,8 +144,8 @@ window.addEventListener("DOMContentLoaded", async (ev) => {
                 email: editForm['emailEdit'].value,
                 desc: editForm['formControlDescripcion'].value,
             };
-            actualizarUsuario(datosUsuario);
-            mostrarEstudiantes();
+            estudiantes = actualizarUsuario(datosUsuario);
+            mostrarEstudiantes(estudiantes);
         })
 
 
@@ -160,6 +165,13 @@ window.addEventListener("DOMContentLoaded", async (ev) => {
     //Evento para cerrar vista de estudiante
     closeView.addEventListener("click", (ev) => {
         viewContent.style.display = "none";
+        crudContainer.style.display = "block";
+    });
+
+    //Evento controla el filtro de busqueda.
+    filtro.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        filtrarDatos(ev.target.value);
     });
 
 
@@ -180,6 +192,22 @@ window.addEventListener("DOMContentLoaded", async (ev) => {
             return id;
         } catch (err) {
             console.log(err)
+        }
+    }
+
+    async function filtrarDatos(filtro) {
+        if (filtro != "-") {
+            const estudiantes = await obtenerTodosUsuarios();
+            estudiantes.sort((a, b) => {
+                if (a[filtro] > b[filtro]) {
+                    return 1;
+                }
+                if (a[filtro] < b[filtro]) {
+                    return -1;
+                }
+                return 0;
+            })
+            mostrarEstudiantes(estudiantes);
         }
     }
 
