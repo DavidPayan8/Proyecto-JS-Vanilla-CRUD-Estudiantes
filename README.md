@@ -7,7 +7,7 @@ Este repositorio contiene un código JavaScript para realizar operaciones básic
 - Configura tu proyecto de Firebase en la consola de Firebase.
 - Reemplaza el objeto de configuración de Firebase en `firebaseConfig` con tus propias credenciales.
   ```
-  const firebaseConfig = {
+    const firebaseConfig = {
   apiKey: "xxxxxxxxxxx",
   authDomain: "proyecto-crud-firebase-js.firebaseapp.com",
   projectId: "proyecto-crud-firebase-js",
@@ -16,11 +16,10 @@ Este repositorio contiene un código JavaScript para realizar operaciones básic
   appId: "xxxxxxxxxxxxx",
   measurementId: "xxxxxxxx"
 };
-// Initialize Firebase
+Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore();
-´´´
-
+  ```
 ### Funciones de firebase necesarias
 ```javascript
 export const guardarUsuario = async (datosUsuario) => {
