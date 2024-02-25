@@ -78,7 +78,7 @@ export const eliminarUsuario = async (id) => {
 };
 ```
 
-#Funcionalidades: 
+##Funcionalidades: 
 
 - Registro de nuevos estudiantes.
   ```javascript
