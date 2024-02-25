@@ -144,7 +144,7 @@ export const eliminarUsuario = async (id) => {
         });
   ```
 - Opcion de ordenar la tabla por filtros.
-  ´´´javascript
+  ```javascript
       async function filtrarDatos(filtro) {
         if (filtro != "-") {
             const auxArray = await obtenerTodosUsuarios();
