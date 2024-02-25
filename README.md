@@ -20,7 +20,8 @@ Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore();
 ```
-### Funciones de firebase necesarias
+### Funciones de firebase necesarias.
+
 ```javascript
 export const guardarUsuario = async (datosUsuario) => {
   try {
@@ -76,10 +77,10 @@ export const eliminarUsuario = async (id) => {
   }
 };
 ```
-
-###Funcionalidades: 
+### Funcionalidades.
 
 - Registro de nuevos estudiantes.
+  
   ```javascript
   registerForm.addEventListener("submit", async (ev) => {
         ev.preventDefault();
@@ -108,6 +109,7 @@ export const eliminarUsuario = async (id) => {
     });
   ```
 - Edición de datos de estudiantes existentes. Mediante un controlador de eventos, para cambiar los datos.
+  
   ```javascript
   //Controla el boton de editar 
         const btnsEditar = document.querySelectorAll("#btnEditar");
@@ -129,6 +131,7 @@ export const eliminarUsuario = async (id) => {
     }
   ```
 - Eliminación de estudiantes, pasandole el id del estudiante.
+  
   ```javascript
           const btnsBorrar = document.querySelectorAll("#btnBorrar");
         btnsBorrar.forEach((btn) => {
@@ -143,6 +146,7 @@ export const eliminarUsuario = async (id) => {
         });
   ```
 - Opcion de ordenar la tabla por filtros.
+  
 ```javascript
       async function filtrarDatos(filtro) {
         if (filtro != "-") {
