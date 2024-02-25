@@ -22,13 +22,14 @@ const tabla = document.getElementById("filas");
 
 //Variables globales.
 const NUMS_PARA_ID = 100;
+let estudiantes = [];
+let idSelec = "";
 
 
 //Inicio 
 window.addEventListener("DOMContentLoaded", async (ev) => {
 
-    const estudiantes = await obtenerTodosUsuarios();
-    mostrarEstudiantes(estudiantes);
+    actualizarTabla();
 
     //Registro de un nuevo estudiante
     registerForm.addEventListener("submit", async (ev) => {
@@ -75,8 +76,7 @@ window.addEventListener("DOMContentLoaded", async (ev) => {
                 } catch (err) {
                     console.log(err)
                 }
-                estudiantes = await obtenerTodosUsuarios();
-                mostrarEstudiantes(estudiantes);
+                actualizarTabla();
             });
         });
 
@@ -108,14 +108,14 @@ window.addEventListener("DOMContentLoaded", async (ev) => {
                     <td>${datosUsuario.ape2}</td>
                     <td>${datosUsuario.email}</td>
                     <td>
-                         <button type="submit" id="btnEditar" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#editModal"
+                         <button type="button" id="btnEditar" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#editModal"
                             value="${datosUsuario.id}">
                          <i class="fa fa-pen"></i>
                         </button>
-                        <button type="submit" id="btnBorrar" class="btn btn-danger" value="${datosUsuario.id}">
+                        <button type="button" id="btnBorrar" class="btn btn-danger" value="${datosUsuario.id}">
                             <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
-                        <button type="submit" id="btnView" class="btn btn-info" value="${datosUsuario.id}">
+                        <button type="button" id="btnView" class="btn btn-info" value="${datosUsuario.id}">
                         </i><i class="fa fa-eye" aria-hidden="true"></i>
                         </button>
                     </td>
@@ -123,32 +123,33 @@ window.addEventListener("DOMContentLoaded", async (ev) => {
     }
 
     //Actualiza los valores
+    editForm.addEventListener("submit", async (ev) => {
+        ev.preventDefault()
+
+        const datosUsuario = {
+            id: idSelec,
+            nombre: editForm["nombreEdit"].value,
+            ape1: editForm['ape1Edit'].value,
+            ape2: editForm['ape2Edit'].value,
+            telef: editForm['tlfEdit'].value,
+            email: editForm['emailEdit'].value,
+            desc: editForm['formControlDescripcion'].value,
+        };
+        await actualizarUsuario(datosUsuario);
+        actualizarTabla()
+    })
+
+    //Edita los campos
     async function editarCampos(id) {
         const estudiante = await obtenerUsuarioPorId(id);
+
+        idSelec = id;
         editForm["nombreEdit"].value = estudiante.nombre;
         editForm['ape1Edit'].value = estudiante.ape1;
         editForm['ape2Edit'].value = estudiante.ape2;
         editForm['tlfEdit'].value = estudiante.telef;
         editForm['emailEdit'].value = estudiante.email;
         editForm['formControlDescripcion'].value = estudiante.desc;
-
-        editForm.addEventListener("submit", async (ev) => {
-            ev.preventDefault()
-
-            const datosUsuario = {
-                id: id,
-                nombre: editForm["nombreEdit"].value,
-                ape1: editForm['ape1Edit'].value,
-                ape2: editForm['ape2Edit'].value,
-                telef: editForm['tlfEdit'].value,
-                email: editForm['emailEdit'].value,
-                desc: editForm['formControlDescripcion'].value,
-            };
-            estudiantes = actualizarUsuario(datosUsuario);
-            mostrarEstudiantes(estudiantes);
-        })
-
-
     }
 
     //Vista de un estudiante
@@ -169,7 +170,7 @@ window.addEventListener("DOMContentLoaded", async (ev) => {
     });
 
     //Evento controla el filtro de busqueda.
-    filtro.addEventListener("click", (ev) => {
+    filtro.addEventListener("change", (ev) => {
         ev.preventDefault();
         filtrarDatos(ev.target.value);
     });
@@ -197,8 +198,8 @@ window.addEventListener("DOMContentLoaded", async (ev) => {
 
     async function filtrarDatos(filtro) {
         if (filtro != "-") {
-            const estudiantes = await obtenerTodosUsuarios();
-            estudiantes.sort((a, b) => {
+            const auxArray = await obtenerTodosUsuarios();
+            auxArray.sort((a, b) => {
                 if (a[filtro] > b[filtro]) {
                     return 1;
                 }
@@ -207,8 +208,14 @@ window.addEventListener("DOMContentLoaded", async (ev) => {
                 }
                 return 0;
             })
-            mostrarEstudiantes(estudiantes);
+            estudiantes = auxArray;
+            mostrarEstudiantes(estudiantes)
         }
+    }
+
+    async function actualizarTabla(){
+        estudiantes = await obtenerTodosUsuarios();
+        mostrarEstudiantes(estudiantes);
     }
 
 });

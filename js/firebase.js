@@ -66,7 +66,6 @@ export const actualizarUsuario = async (datosActualizados) => {
   try {
     const usuarioRef = doc(collection(db, "estudiantes"), datosActualizados.id);
     await setDoc(usuarioRef, datosActualizados);
-    return obtenerTodosUsuarios();
     alert("Datos actualizados")
   } catch (error) {
     console.error("Error al actualizar estudiante:", error);
