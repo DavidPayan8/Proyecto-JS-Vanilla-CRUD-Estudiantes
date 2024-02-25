@@ -6,8 +6,8 @@ Este repositorio contiene un código JavaScript para realizar operaciones básic
 
 - Configura tu proyecto de Firebase en la consola de Firebase.
 - Reemplaza el objeto de configuración de Firebase en `firebaseConfig` con tus propias credenciales.
-  ```
-    const firebaseConfig = {
+```javascript
+ const firebaseConfig = {
   apiKey: "xxxxxxxxxxx",
   authDomain: "proyecto-crud-firebase-js.firebaseapp.com",
   projectId: "proyecto-crud-firebase-js",
@@ -19,7 +19,7 @@ Este repositorio contiene un código JavaScript para realizar operaciones básic
 Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore();
-  ```
+```
 ### Funciones de firebase necesarias
 ```javascript
 export const guardarUsuario = async (datosUsuario) => {
@@ -143,7 +143,7 @@ export const eliminarUsuario = async (id) => {
         });
   ```
 - Opcion de ordenar la tabla por filtros.
-  ```javascript
+```javascript
       async function filtrarDatos(filtro) {
         if (filtro != "-") {
             const auxArray = await obtenerTodosUsuarios();
